@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Confetti from './Confetti';
 
+const SESSION_KEY = (levelId) => `spellbee_session_${levelId}`;
+
+const saveSession = (levelId, data) => {
+  localStorage.setItem(SESSION_KEY(levelId), JSON.stringify(data));
+};
+
+const loadSession = (levelId) => {
+  try {
+    const saved = localStorage.getItem(SESSION_KEY(levelId));
+    return saved ? JSON.parse(saved) : null;
+  } catch { return null; }
+};
+
+const clearSession = (levelId) => {
+  localStorage.removeItem(SESSION_KEY(levelId));
+};
+
 const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -13,6 +30,7 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
   const [streak, setStreak] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState(null);
+  const [wrongWords, setWrongWords] = useState([]);
 
   // Speech recognition states
   const [isListening, setIsListening] = useState(false);
@@ -182,10 +200,19 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
 
-  // Shuffle words on mount
+  // Load session or shuffle words on mount
   useEffect(() => {
-    const shuffled = [...level.words].sort(() => Math.random() - 0.5);
-    setWords(shuffled);
+    const saved = loadSession(level.id);
+    if (saved && saved.words && saved.words.length > 0) {
+      setWords(saved.words);
+      setCurrentIndex(saved.currentIndex || 0);
+      setScore(saved.score || { correct: 0, total: 0 });
+      setStreak(saved.streak || 0);
+      setWrongWords(saved.wrongWords || []);
+    } else {
+      const shuffled = [...level.words].sort(() => Math.random() - 0.5);
+      setWords(shuffled);
+    }
   }, [level]);
 
   const currentWord = words[currentIndex] || '';
@@ -299,35 +326,74 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
     setShowResult(true);
     setLiveTranscript('');
 
-    if (correct) {
-      setScore(prev => ({ correct: prev.correct + 1, total: prev.total + 1 }));
-      setStreak(prev => prev + 1);
-      updateProgress(level.id, { completed: currentIndex + 1, correct: score.correct + 1 });
+    let newScore, newStreak, newWrongWords;
 
-      if ((streak + 1) % 3 === 0) {
+    if (correct) {
+      newScore = { correct: score.correct + 1, total: score.total + 1 };
+      newStreak = streak + 1;
+      newWrongWords = wrongWords;
+      setScore(newScore);
+      setStreak(newStreak);
+      updateProgress(level.id, { completed: currentIndex + 1, correct: newScore.correct });
+
+      if (newStreak % 3 === 0) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
       }
     } else {
-      setScore(prev => ({ ...prev, total: prev.total + 1 }));
-      setStreak(0);
+      newScore = { correct: score.correct, total: score.total + 1 };
+      newStreak = 0;
+      newWrongWords = [...wrongWords, { word: currentWord, userAnswer }];
+      setScore(newScore);
+      setStreak(newStreak);
+      setWrongWords(newWrongWords);
     }
-  }, [userInput, currentWord, currentIndex, score, streak, level.id, updateProgress, stopListening]);
+
+    // Persist session after each answer
+    saveSession(level.id, {
+      words,
+      currentIndex,
+      score: newScore,
+      streak: newStreak,
+      wrongWords: newWrongWords,
+    });
+
+    // Save wrong words in real-time so main page can show them
+    if (newWrongWords.length > 0) {
+      localStorage.setItem(`spellbee_wrong_${level.id}`, JSON.stringify(newWrongWords));
+    }
+  }, [userInput, currentWord, currentIndex, score, streak, wrongWords, words, level.id, updateProgress, stopListening]);
 
   // Next word
   const nextWord = useCallback(() => {
     if (currentIndex < words.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
       setUserInput('');
       setShowResult(false);
       setShowCorrectWord(false);
       setLiveTranscript('');
       fullTranscriptRef.current = ''; // Reset accumulated transcript
-      // Don't auto-focus input - let user press Space to speak or click to type
+
+      // Persist session with advanced index
+      saveSession(level.id, {
+        words,
+        currentIndex: nextIndex,
+        score,
+        streak,
+        wrongWords,
+      });
     } else {
-      onComplete(score);
+      // Practice complete — clear session and save wrong words for level review
+      clearSession(level.id);
+      if (wrongWords.length > 0) {
+        localStorage.setItem(`spellbee_wrong_${level.id}`, JSON.stringify(wrongWords));
+      } else {
+        localStorage.removeItem(`spellbee_wrong_${level.id}`);
+      }
+      onComplete({ ...score, wrongWords });
     }
-  }, [currentIndex, words.length, onComplete, score]);
+  }, [currentIndex, words, score, streak, wrongWords, level.id, onComplete]);
 
   // Restart exercise
   const restartExercise = useCallback(() => {
@@ -339,10 +405,12 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
     setShowCorrectWord(false);
     setScore({ correct: 0, total: 0 });
     setStreak(0);
+    setWrongWords([]);
     setLiveTranscript('');
     fullTranscriptRef.current = ''; // Reset accumulated transcript
-    // Don't auto-focus input - let user press Space to speak or click to type
-  }, [level.words]);
+    clearSession(level.id);
+    localStorage.removeItem(`spellbee_wrong_${level.id}`);
+  }, [level.words, level.id]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -599,6 +667,7 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
           {' '}{showResult ? 'Next word' : 'Check answer'}
         </p>
       </div>
+
     </div>
   );
 };

@@ -5,7 +5,11 @@
       "Bash(npm init -y)",
       "Bash(npm install:*)",
       "Bash(npx tailwindcss:*)",
-      "Bash(./node_modules/.bin/tailwindcss:*)"
+      "Bash(./node_modules/.bin/tailwindcss:*)",
+      "Bash(xargs:*)",
+      "Bash(wc:*)",
+      "Bash(npm run build:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\":*)"
     ]
   }
 }

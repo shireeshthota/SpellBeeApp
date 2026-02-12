@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LevelSelection from './components/LevelSelection';
 import SpellingPractice from './components/SpellingPractice';
 import Results from './components/Results';
+import { spellingLevels } from './data/words';
 
 // App states
 const SCREENS = {
@@ -13,15 +14,34 @@ const SCREENS = {
 function App() {
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LEVEL_SELECT);
   const [selectedLevel, setSelectedLevel] = useState(null);
-  const [finalScore, setFinalScore] = useState({ correct: 0, total: 0 });
+  const [finalScore, setFinalScore] = useState({ correct: 0, total: 0, wrongWords: [] });
   const [progress, setProgress] = useState({});
 
-  // Load progress from localStorage
+  // Load progress and restore session from localStorage
   useEffect(() => {
     const savedProgress = localStorage.getItem('spellbee_progress');
     if (savedProgress) {
       setProgress(JSON.parse(savedProgress));
     }
+
+    // Restore active session (screen + level) if one exists
+    try {
+      const savedSession = localStorage.getItem('spellbee_app_session');
+      if (savedSession) {
+        const { screen, levelId } = JSON.parse(savedSession);
+        if (screen === SCREENS.PRACTICE && levelId) {
+          const level = spellingLevels.find(l => l.id === levelId);
+          if (level) {
+            // Only resume if there's actually saved practice data
+            const practiceData = localStorage.getItem(`spellbee_session_${levelId}`);
+            if (practiceData) {
+              setSelectedLevel(level);
+              setCurrentScreen(SCREENS.PRACTICE);
+            }
+          }
+        }
+      }
+    } catch {}
   }, []);
 
   // Save progress to localStorage
@@ -43,23 +63,27 @@ function App() {
   const handleSelectLevel = (level) => {
     setSelectedLevel(level);
     setCurrentScreen(SCREENS.PRACTICE);
+    localStorage.setItem('spellbee_app_session', JSON.stringify({ screen: SCREENS.PRACTICE, levelId: level.id }));
   };
 
   // Handle going back to level selection
   const handleBack = () => {
     setSelectedLevel(null);
     setCurrentScreen(SCREENS.LEVEL_SELECT);
+    localStorage.removeItem('spellbee_app_session');
   };
 
   // Handle practice completion
   const handleComplete = (score) => {
     setFinalScore(score);
     setCurrentScreen(SCREENS.RESULTS);
+    localStorage.removeItem('spellbee_app_session');
   };
 
   // Handle restart practice
   const handleRestart = () => {
     setCurrentScreen(SCREENS.PRACTICE);
+    localStorage.setItem('spellbee_app_session', JSON.stringify({ screen: SCREENS.PRACTICE, levelId: selectedLevel.id }));
   };
 
   // Reset all progress
@@ -67,6 +91,12 @@ function App() {
     if (window.confirm('Are you sure you want to reset all your progress?')) {
       setProgress({});
       localStorage.removeItem('spellbee_progress');
+      // Also clear all session and wrong words data
+      spellingLevels.forEach(level => {
+        localStorage.removeItem(`spellbee_session_${level.id}`);
+        localStorage.removeItem(`spellbee_wrong_${level.id}`);
+      });
+      localStorage.removeItem('spellbee_app_session');
     }
   };
 
@@ -93,6 +123,7 @@ function App() {
         <Results
           level={selectedLevel}
           score={finalScore}
+          wrongWords={finalScore.wrongWords || []}
           onBack={handleBack}
           onRestart={handleRestart}
         />

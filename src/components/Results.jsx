@@ -1,7 +1,7 @@
 import React from 'react';
 import Confetti from './Confetti';
 
-const Results = ({ level, score, onBack, onRestart }) => {
+const Results = ({ level, score, wrongWords = [], onBack, onRestart }) => {
   const percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
 
   const getGrade = () => {
@@ -102,6 +102,26 @@ const Results = ({ level, score, onBack, onRestart }) => {
             </div>
           </div>
         </div>
+
+        {/* Wrong Words List */}
+        {wrongWords.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h3 className="text-base font-semibold text-gray-500 mb-4 text-kid-title">
+              Words to Practice ({wrongWords.length})
+            </h3>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {wrongWords.map((entry, i) => (
+                <div key={i} className="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3">
+                  <div className="flex-1">
+                    <span className="font-bold text-gray-800 text-lg spelling-display">{entry.word}</span>
+                    <span className="text-gray-400 mx-2">&larr;</span>
+                    <span className="text-red-500 line-through">{entry.userAnswer}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { spellingLevels } from '../data/words';
 
 const LevelSelection = ({ onSelectLevel, progress, onResetProgress }) => {
   const totalWords = spellingLevels.reduce((sum, level) => sum + level.words.length, 0);
   const totalCompleted = Object.values(progress).reduce((sum, p) => sum + (p.completed || 0), 0);
   const totalCorrect = Object.values(progress).reduce((sum, p) => sum + (p.correct || 0), 0);
+
+  const [showWrongWords, setShowWrongWords] = useState(false);
+
+  // Load wrong words per level from localStorage
+  const getWrongWords = (levelId) => {
+    try {
+      const saved = localStorage.getItem(`spellbee_wrong_${levelId}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  };
+
+  // Collect all wrong words across levels
+  const allWrongWords = spellingLevels.flatMap(level => {
+    const words = getWrongWords(level.id);
+    return words.map(entry => ({ ...entry, levelName: level.name, levelEmoji: level.emoji }));
+  });
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -88,6 +104,30 @@ const LevelSelection = ({ onSelectLevel, progress, onResetProgress }) => {
               <div className="text-sm text-gray-500">Accuracy</div>
             </div>
           </div>
+
+          {allWrongWords.length > 0 && (
+            <div className="mb-4">
+              <button
+                onClick={() => setShowWrongWords(!showWrongWords)}
+                className="text-orange-600 hover:text-orange-800 text-sm font-medium underline transition-colors"
+              >
+                {showWrongWords ? 'Hide' : 'Show'} words to review ({allWrongWords.length})
+              </button>
+
+              {showWrongWords && (
+                <div className="mt-3 space-y-2 max-h-48 overflow-y-auto text-left">
+                  {allWrongWords.map((entry, i) => (
+                    <div key={i} className="flex items-center bg-red-50 rounded-lg px-3 py-2 text-sm">
+                      <span className="text-base mr-2">{entry.levelEmoji}</span>
+                      <span className="font-bold text-gray-800 spelling-display">{entry.word}</span>
+                      <span className="text-gray-400 mx-2">&larr;</span>
+                      <span className="text-red-500 line-through">{entry.userAnswer}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <button
             onClick={onResetProgress}
