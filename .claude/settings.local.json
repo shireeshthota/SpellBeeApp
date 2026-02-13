@@ -9,7 +9,8 @@
       "Bash(xargs:*)",
       "Bash(wc:*)",
       "Bash(npm run build:*)",
-      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\":*)"
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\":*)",
+      "Bash(vercel:*)"
     ]
   }
 }

@@ -176,16 +176,31 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
     };
   }, []);
 
-  // Find the best kid-friendly voice
+  // Find the best kid-friendly voice - warm, clear voices like a teacher
   useEffect(() => {
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
-      const preferredVoices = ['Samantha', 'Karen', 'Moira', 'Google US English', 'Microsoft Zira'];
+      // Prioritize warm, clear voices that sound teacher-like
+      const preferredVoices = [
+        'Samantha',           // macOS - warm and clear
+        'Google US English Female',
+        'Google US English',
+        'Microsoft Aria',     // Windows 11 - natural and friendly
+        'Microsoft Zira',     // Windows - clear female voice
+        'Karen',              // macOS Australian - clear enunciation
+        'Moira',              // macOS Irish - gentle and clear
+        'Tessa',              // macOS South African
+      ];
 
       let bestVoice = null;
       for (const preferred of preferredVoices) {
         bestVoice = voices.find(v => v.name.includes(preferred));
         if (bestVoice) break;
+      }
+
+      // Fallback: prefer any US English voice
+      if (!bestVoice) {
+        bestVoice = voices.find(v => v.lang === 'en-US');
       }
 
       if (!bestVoice) {
@@ -217,14 +232,14 @@ const SpellingPractice = ({ level, onBack, onComplete, updateProgress }) => {
 
   const currentWord = words[currentIndex] || '';
 
-  // Speak the word - slow and clear for kids
+  // Speak the word - slow and clear like a patient second-grade teacher
   const speakWord = useCallback(() => {
     if ('speechSynthesis' in window && currentWord) {
       window.speechSynthesis.cancel();
 
       const utterance = new SpeechSynthesisUtterance(currentWord);
-      utterance.rate = 0.75;       // Clear speed for kids
-      utterance.pitch = 1.0;       // Natural pitch
+      utterance.rate = 0.65;       // Slower, like a teacher enunciating clearly
+      utterance.pitch = 1.15;      // Slightly higher - warm, friendly teacher tone
       utterance.volume = 1.0;      // Full volume
       utterance.lang = 'en-US';
 
