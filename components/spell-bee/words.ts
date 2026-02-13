@@ -1,5 +1,3 @@
-// Words extracted from Scripps National Spelling Bee 2025-2026 Study Lists
-
 export const spellingLevels = [
   {
     id: 'one-bee',
@@ -7,7 +5,7 @@ export const spellingLevels = [
     description: 'First & Second Grade Level',
     difficulty: 1,
     color: 'from-green-400 to-emerald-500',
-    emoji: '🐝',
+    emoji: '\u{1F41D}',
     words: [
       'tag', 'send', 'deck', 'stuck', 'snug', 'fish', 'hold', 'mind', 'stay', 'scrub',
       'draw', 'brown', 'cozy', 'tint', 'milk', 'yawn', 'tank', 'want', 'crowd', 'pond',
@@ -28,7 +26,7 @@ export const spellingLevels = [
     description: 'Third & Fourth Grade Level',
     difficulty: 2,
     color: 'from-yellow-400 to-orange-500',
-    emoji: '🐝🐝',
+    emoji: '\u{1F41D}\u{1F41D}',
     words: [
       'hesitate', 'scorcher', 'scavenger', 'fragments', 'deflated', 'unleash', 'ration',
       'cosmetics', 'crawdad', 'frustration', 'unruly', 'mascot', 'aroma', 'moustache',
@@ -52,7 +50,7 @@ export const spellingLevels = [
     description: 'Fifth & Sixth Grade Level',
     difficulty: 3,
     color: 'from-purple-500 to-pink-500',
-    emoji: '🐝🐝🐝',
+    emoji: '\u{1F41D}\u{1F41D}\u{1F41D}',
     words: [
       'gangly', 'swaggering', 'chimneys', 'riveted', 'plaid', 'dirge', 'zeal', 'whittled',
       'depots', 'fiberglass', 'salvaged', 'fissures', 'enthusiastic', 'discipline',
@@ -78,7 +76,7 @@ export const spellingLevels = [
     description: 'Third Grade Study Words',
     difficulty: 2,
     color: 'from-blue-400 to-cyan-500',
-    emoji: '⭐',
+    emoji: '\u2B50',
     words: [
       'unicorn', 'faraway', 'heater', 'pirates', 'understand', 'wooden', 'leaning',
       'breakfast', 'window', 'acrobat', 'message', 'chocolate', 'forepaw', 'knight',
@@ -91,19 +89,16 @@ export const spellingLevels = [
   }
 ];
 
-// Helper function to get all words
 export const getAllWords = () => {
   return spellingLevels.flatMap(level => level.words);
 };
 
-// Helper function to get words by level
-export const getWordsByLevel = (levelId) => {
+export const getWordsByLevel = (levelId: string) => {
   const level = spellingLevels.find(l => l.id === levelId);
   return level ? level.words : [];
 };
 
-// Helper function to shuffle array
-export const shuffleArray = (array) => {
+export const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

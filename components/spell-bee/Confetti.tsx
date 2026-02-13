@@ -1,13 +1,34 @@
-import React, { useEffect, useState } from 'react';
+"use client";
+
+import React, { useEffect, useState } from "react";
+
+interface ConfettiPiece {
+  id: number;
+  left: number;
+  color: string;
+  shape: string;
+  size: number;
+  delay: number;
+  duration: number;
+  rotation: number;
+}
 
 const Confetti = () => {
-  const [pieces, setPieces] = useState([]);
+  const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
 
   useEffect(() => {
-    const colors = ['#FFD700', '#FF6B6B', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63'];
-    const shapes = ['circle', 'square', 'triangle'];
+    const colors = [
+      "#FFD700",
+      "#FF6B6B",
+      "#4CAF50",
+      "#2196F3",
+      "#FF9800",
+      "#9C27B0",
+      "#E91E63",
+    ];
+    const shapes = ["circle", "square", "triangle"];
 
-    const newPieces = Array.from({ length: 50 }, (_, i) => ({
+    const newPieces: ConfettiPiece[] = Array.from({ length: 50 }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
       color: colors[Math.floor(Math.random() * colors.length)],
@@ -15,12 +36,11 @@ const Confetti = () => {
       size: Math.random() * 10 + 5,
       delay: Math.random() * 0.5,
       duration: Math.random() * 2 + 2,
-      rotation: Math.random() * 360
+      rotation: Math.random() * 360,
     }));
 
     setPieces(newPieces);
 
-    // Clean up after animation
     const timer = setTimeout(() => {
       setPieces([]);
     }, 4000);
@@ -28,30 +48,30 @@ const Confetti = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const getShapeStyle = (piece) => {
-    const baseStyle = {
-      position: 'absolute',
+  const getShapeStyle = (piece: ConfettiPiece): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      position: "absolute",
       left: `${piece.left}%`,
-      top: '-20px',
+      top: "-20px",
       width: `${piece.size}px`,
       height: `${piece.size}px`,
       backgroundColor: piece.color,
       animationDelay: `${piece.delay}s`,
       animationDuration: `${piece.duration}s`,
-      transform: `rotate(${piece.rotation}deg)`
+      transform: `rotate(${piece.rotation}deg)`,
     };
 
-    if (piece.shape === 'circle') {
-      return { ...baseStyle, borderRadius: '50%' };
-    } else if (piece.shape === 'triangle') {
+    if (piece.shape === "circle") {
+      return { ...baseStyle, borderRadius: "50%" };
+    } else if (piece.shape === "triangle") {
       return {
         ...baseStyle,
         width: 0,
         height: 0,
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         borderLeft: `${piece.size / 2}px solid transparent`,
         borderRight: `${piece.size / 2}px solid transparent`,
-        borderBottom: `${piece.size}px solid ${piece.color}`
+        borderBottom: `${piece.size}px solid ${piece.color}`,
       };
     }
 

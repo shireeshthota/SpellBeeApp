@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Kid-friendly fonts - rounded and easy to read */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
-
 :root {
   --color-primary: #FFD700;
   --color-secondary: #FF6B6B;
@@ -19,7 +16,6 @@
 }
 
 body {
-  font-family: 'Nunito', 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
   min-height: 100vh;
   font-weight: 500;
@@ -27,7 +23,6 @@ body {
   position: relative;
 }
 
-/* Subtle animated background */
 body::before {
   content: '';
   position: fixed;
@@ -42,18 +37,17 @@ body::before {
   z-index: 0;
 }
 
-#root {
+#__next {
   position: relative;
   z-index: 1;
 }
 
-/* Make all text slightly larger and more readable */
 html {
   font-size: 18px;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Quicksand', 'Nunito', sans-serif;
+  font-family: var(--font-quicksand), 'Nunito', sans-serif;
   font-weight: 700;
 }
 
@@ -67,28 +61,28 @@ h1, h2, h3, h4, h5, h6 {
 .btn-primary {
   @apply bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-800 font-bold py-3 px-6 rounded-full
          transform transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95;
-  font-family: 'Quicksand', sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
   font-weight: 700;
 }
 
 .btn-secondary {
   @apply bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold py-3 px-6 rounded-full
          transform transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95;
-  font-family: 'Quicksand', sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
   font-weight: 700;
 }
 
 .btn-success {
   @apply bg-gradient-to-r from-green-400 to-emerald-400 text-white font-bold py-3 px-6 rounded-full
          transform transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95;
-  font-family: 'Quicksand', sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
   font-weight: 700;
 }
 
 .input-spelling {
   @apply w-full text-center text-2xl font-semibold py-4 px-6 rounded-2xl border-4
          focus:outline-none transition-all duration-200;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-nunito), sans-serif;
   letter-spacing: 0.15em;
 }
 
@@ -102,7 +96,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #a0aec0;
 }
 
-/* Fun animations */
 .bee-bounce {
   animation: beeBounce 2s ease-in-out infinite;
 }
@@ -174,7 +167,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -193,32 +185,28 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Kid-friendly text styles */
 .text-kid-title {
-  font-family: 'Quicksand', sans-serif;
+  font-family: var(--font-quicksand), sans-serif;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .text-kid-body {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-nunito), sans-serif;
   font-weight: 500;
   line-height: 1.6;
 }
 
-/* Larger, friendlier checkboxes and buttons for kids */
 button {
-  font-family: 'Quicksand', 'Nunito', sans-serif;
+  font-family: var(--font-quicksand), var(--font-nunito), sans-serif;
 }
 
-/* Make the correct spelling display very clear */
 .spelling-display {
-  font-family: 'Nunito', monospace;
+  font-family: var(--font-nunito), monospace;
   letter-spacing: 0.3em;
   font-weight: 700;
 }
 
-/* Custom scale for subtle hover effect */
 .hover\:scale-102:hover {
   transform: scale(1.02);
 }

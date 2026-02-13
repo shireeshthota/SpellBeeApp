@@ -1,32 +1,26 @@
 {
-  "name": "spellbeeapp",
+  "name": "spell-bee-app",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "A fun spelling practice app for kids",
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start"
   },
-  "keywords": [
-    "spelling",
-    "education",
-    "kids"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.468.0",
+    "next": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.7"
+    "typescript": "^5.7"
   }
 }
